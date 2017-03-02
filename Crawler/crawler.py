@@ -7,6 +7,7 @@ import sys
 import json
 from tweepy.streaming import StreamListener
 from tweepy import Stream
+import pdb
 
 class textListener(StreamListener):
 
@@ -21,9 +22,10 @@ class textListener(StreamListener):
 			return False
 		else:
 			try:
-				for word in self.keywords: 
+				#pdb.set_trace()
+				for word in self.keywords:
 					if not data.text.lower().find(word) == -1:
-						#print(data.text)
+						print(data.text)
 						print json.dumps(data._json)
 						self.tweet_count = self.tweet_count + 1
 						return True
@@ -38,20 +40,25 @@ class textListener(StreamListener):
 
 output_file_name = "results.txt"
 
-# Enter keys here
-#------------------------------------------------------------------------
-consumer_key =  
-consumer_secret = 
+#import config file, not included in git repo. Layout is in git README
+config_file=open('config.txt','r')
+keys=config_file.readlines()
+config_file.close()
 
-access_token = 
-access_token_secret = 
+# Taking keys from config.txt file
+#------------------------------------------------------------------------
+consumer_key =  str(keys[1].replace('\n', ' ').replace('\r', '').replace(' ', ''))
+consumer_secret = str(keys[3].replace('\n', ' ').replace('\r', '').replace(' ', ''))
+
+access_token = str(keys[5].replace('\n', ' ').replace('\r', '').replace(' ', ''))
+access_token_secret = str(keys[7].replace('\n', ' ').replace('\r', '').replace(' ', ''))
 #------------------------------------------------------------------------
 
 # Open Data file to collect output
 sys.stdout = open(output_file_name, 'w')
 
 # Initialize listener. NOTE: arg1 = number of tweets before terminating, arg2 = list of substrings to select
-listener1 = textListener(50, ['trump', 'clinton'])
+listener1 = textListener(1, ['trump', 'clinton'])
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
