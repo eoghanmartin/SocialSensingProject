@@ -21,14 +21,15 @@ class textListener(StreamListener):
 			return False
 		else:
 			try:
+				#print data.text.encode('ascii', 'ignore').lower()
 				for word in self.keywords: 
-					if not data.text.lower().find(word) == -1:
+					if not data.text.encode('ascii', 'ignore').lower().find(word) == -1:
 						#print(data.text)
 						print json.dumps(data._json)
 						self.tweet_count = self.tweet_count + 1
 						return True
 			except Exception:
-				print("Exception reading data!")
+				#print 'Exception occurred'
 				pass
 
 			return True
@@ -51,7 +52,7 @@ access_token_secret =
 sys.stdout = open(output_file_name, 'w')
 
 # Initialize listener. NOTE: arg1 = number of tweets before terminating, arg2 = list of substrings to select
-listener1 = textListener(50, ['trump', 'clinton'])
+listener1 = textListener(1000, ['trump', 'clinton', 'election', 'potus', 'president', 'white house', 'whitehouse'])
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
@@ -59,4 +60,5 @@ api = tweepy.API(auth)
 
 # Start listener. NOTE: Hard code desired location here
 stream1 = Stream(auth, listener1)
-stream1.filter(locations=[-86.33,41.63,-86.20, 41.74])
+stream1.filter(locations=[-85.7867431641, 42.7696989802, -85.3143310547, 43.292700534])
+#stream1.filter(locations=[-86.33,41.63,-86.20, 41.74])
