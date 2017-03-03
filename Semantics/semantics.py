@@ -1,28 +1,54 @@
-	
 import json
 import sys
 import pdb
 from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
 
-#import tweets
-tweet_file = open('PresidentialDebate(DonaldTrump-HillaryClinton)Sep_26_2016.json','r')
-test_tweet_json = tweet_file.readline()
-tweet_file.close()
+json_file = 'tweet_selection.json'
 
-test_tweet = json.loads(test_tweet_json)
+# Returns 1 for positive, -1 for neg and 0 for neutral
+def SentimentAnalysis(tweet_text):
+	####Using NaiveBayesAnalyzer is slow
+	#TextBlob_text = TextBlob(tweet_text, analyzer=NaiveBayesAnalyzer())
+	#sentiment = TextBlob_text.sentiment.p_pos
+	#sentiment_neg = TextBlob_text.sentiment.p_neg
+	####
+	TextBlob_text = TextBlob(tweet_text)
+	sentiment = TextBlob_text.sentiment.polarity
+	if sentiment < 0:
+		return -1
+	elif sentiment > 0:
+		return 1
+	return 0
 
-#Sentement analysis
-NFKD_text = test_tweet['text'].encode('ascii','ignore')
-TextBlob_text = TextBlob(NFKD_text)
-polarity = TextBlob_text.sentiment.polarity
-subjectivity = TextBlob_text.sentiment.subjectivity
-TextBlob_text = TextBlob(NFKD_text, analyzer=NaiveBayesAnalyzer())
-classification = TextBlob_text.sentiment.classification
-p_pos = TextBlob_text.sentiment.p_pos
-p_neg = TextBlob_text.sentiment.p_neg
+hillary_tweets = []
+donald_tweets = []
 
-print "Tweet text: " + NFKD_text
+hillary_score = 0
+donald_score = 0
 
-print "\nThis tweet is " + str(p_pos) + "% positive."
-print "This tweet is " + str(p_neg) + "% negative."
+with open(json_file) as TweetsFileObj:
+	for line in TweetsFileObj:
+		tweet = json.loads(line)
+		tweet_text = tweet['text'].encode('ascii','ignore')
+		sentiment = SentimentAnalysis(tweet_text)
+		if tweet_text.find("onald") or tweet_text.find("rump"):
+			if sentiment == 1:
+				donald_tweets.append(tweet)
+				donald_score += 1
+			elif sentiment == -1:
+				hillary_tweets.append(tweet)
+				donald_score -= 1
+		elif tweet_text.find("illary") or tweet_text.find("linton"):
+			if sentiment:
+				hillary_tweets.append(tweet)
+				hillary_score += 1
+			elif sentiment == -1:
+				donald_tweets.append(tweet)
+				hillary_score -= 1
+
+print "There are " + str(len(donald_tweets)) + " tweets for Donald Trump."
+print "There are " + str(len(hillary_tweets)) + " tweets for Hillary Clinton."
+
+print "Score for Hillary: " + str(hillary_score)
+print "Score for Donald: " + str(donald_score)
