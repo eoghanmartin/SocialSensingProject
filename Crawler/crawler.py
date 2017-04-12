@@ -14,22 +14,26 @@ class textListener(StreamListener):
 	def __init__(self, count, keywords=None, api=None):
 		super(textListener, self).__init__()
 		self.count = count
-		self.keywords = keywords
+		self.API = api
 		self.tweet_count = 0
+		self.keywords = keywords		
 
 	def on_status(self, data):
 		if self.tweet_count >= self.count:
 			return False
 		else:
 			try:
-				#print data.text.encode('ascii', 'ignore').lower()
-				for word in self.keywords: 
-					if not data.text.encode('ascii', 'ignore').lower().find(word) == -1:
-						#print(data.text)
-						#print("Filter word detected!")
-						print json.dumps(data._json)
-						self.tweet_count = self.tweet_count + 1
-						return True
+				place = None
+				for key, value in dict.items(data._json['user']):
+					if key == 'location':
+						place = value
+				
+				if not place == None:
+					for word in self.keywords:
+						if word in place:
+							print json.dumps(data._json)
+							self.tweet_count = self.tweet_count + 1
+							return True
 			except Exception:
 				#print 'Exception occurred'
 				pass
@@ -37,7 +41,9 @@ class textListener(StreamListener):
 			return True
 	
 	def on_error(self, status):
-		print(status)
+		if status == 420:
+			#print(status)
+			return False
 
 output_file_name = "results.txt"
 
@@ -56,16 +62,18 @@ access_token_secret = str(keys[7].replace('\n', ' ').replace('\r', '').replace('
 #------------------------------------------------------------------------
 
 # Open Data file to collect output
-sys.stdout = open(output_file_name, 'w')
+#sys.stdout = open(output_file_name, 'w')
 
-# Initialize listener. NOTE: arg1 = number of tweets before terminating, arg2 = list of substrings to select
-listener1 = textListener(1000, ['trump', 'clinton', 'election', 'potus', 'president', 'white house', 'whitehouse'])
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth)
+# Initialize listener. NOTE: arg1 = number of tweets before terminating, arg2 = list of substrings to select
+listener1 = textListener(1000, ['Chicago'], api)
 
 # Start listener. NOTE: Hard code desired location here
 stream1 = Stream(auth, listener1)
-stream1.filter(locations=[-86.9177277088,41.7286433379,-82.4194335937,45.8019991667])
+stream1.filter(track=['the', 'trump', 'clinton', 'election', 'potus', 'president', 'white house', 'whitehouse'])
+#stream1.filter(track=['lol'])
+#stream1.filter(locations=[-86.9177277088,41.7286433379,-82.4194335937,45.8019991667])
 #stream1.filter(locations=[-86.33,41.63,-86.20, 41.74])
