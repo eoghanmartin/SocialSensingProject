@@ -62,7 +62,7 @@ access_token_secret = str(keys[7].replace('\n', ' ').replace('\r', '').replace('
 #------------------------------------------------------------------------
 
 # Open Data file to collect output
-#sys.stdout = open(output_file_name, 'w')
+sys.stdout = open(output_file_name, 'w')
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
