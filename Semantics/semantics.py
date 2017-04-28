@@ -4,7 +4,7 @@ import pdb
 from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
 
-json_file = 'tweet_selection.json'
+json_file = '.\data\debate_1\debate_1_1.json' #tweet_selection.json'
 
 # Returns 1 for positive, -1 for neg and 0 for neutral
 def SentimentAnalysis(tweet_text):
@@ -18,45 +18,43 @@ def SentimentAnalysis(tweet_text):
 
 if __name__ == '__main__':
 
-	hillary_tweets = []
-	donald_tweets = []
-
-	hillary_score = 0
-	donald_score = 0
-
-	tweets_object = open(json_file)
-	tweets_by_line = tweets_object.readlines()
-	hillary_file = open('hillary_tweets.txt', 'w+')
-	donald_file = open('donald_tweets.txt', 'w+')
-
-	for line in tweets_by_line:
-		tweet = json.loads(line)
-		tweet_text = tweet['text'].encode('ascii','ignore')
-		sentiment = SentimentAnalysis(tweet_text)
-
-		if tweet_text.find("donald") or tweet_text.find("trump"):
-			if sentiment == 1:
-				donald_file.write(str(tweet))
-				donald_tweets.append(tweet)
-				donald_score += 1
-			elif sentiment == -1:
-				hillary_file.write(str(tweet))
-				hillary_tweets.append(tweet)
-				donald_score -= 1
-		elif tweet_text.find("hillary") or tweet_text.find("clinton"):
-			if sentiment:
-				hillary_file.write(str(tweet))
-				hillary_tweets.append(tweet)
-				hillary_score += 1
-			elif sentiment == -1:
-				donald_file.write(str(tweet))
-				donald_tweets.append(tweet)
-				hillary_score -= 1
+	#reseting files
+	hillary_file = open('hillary_tweets.json', 'w')
+	donald_file = open('donald_tweets.json', 'w')
+	other_file = open('other_tweets.json', 'w')
 	hillary_file.close()
-	donald_file.write(str(tweet))
+	donald_file.close()
+	other_file.close()
 
-print "There are " + str(len(donald_tweets)) + " tweets for Donald Trump."
-print "There are " + str(len(hillary_tweets)) + " tweets for Hillary Clinton."
+	counter_hillary = 0
+	counter_donald = 0
 
-print "Score for Hillary: " + str(hillary_score)
-print "Score for Donald: " + str(donald_score)
+	with open(json_file) as tweet_file:
+		hillary_file = open('hillary_tweets.json', 'a')
+		donald_file = open('donald_tweets.json', 'a')
+		other_file = open('other_tweets.json', 'a')
+		for i, tweet_by_line in enumerate(tweet_file):
+			tweet = json.loads(tweet_by_line)
+			tweet['trump_sentiment'] = 0
+			tweet['clinton_sentiment'] = 0
+			tweet['other_sentiment'] = 0
+			tweet_text = tweet['text'].encode('ascii','ignore')
+			sentiment = SentimentAnalysis(tweet_text)
+
+			if (tweet_text.lower().find("donald") > 0) or (tweet_text.lower().find("trump") > 0):
+				counter_donald += 1
+				tweet['trump_sentiment'] = sentiment
+				donald_file.write(str(json.dumps(tweet)) + '\n')
+			if (tweet_text.lower().find("hillary") > 0) or (tweet_text.lower().find("clinton") > 0):
+				counter_hillary += 1
+				tweet['clinton_sentiment'] = sentiment
+				hillary_file.write(str(json.dumps(tweet)) + '\n')
+			else:
+				tweet['other_sentiment'] = sentiment
+				other_file.write(str(json.dumps(tweet)) + '\n')
+		hillary_file.close()
+		donald_file.close()
+		other_file.close()
+
+	print '\nHillary Tweets: ', counter_hillary
+	print '\nDonald Tweets: ', counter_donald
