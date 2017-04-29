@@ -68,6 +68,8 @@ if __name__ == '__main__':
 			if (tweet_text.lower().find("hillary") > 0) or (tweet_text.lower().find("clinton") > 0):
 				counter_hillary += 1
 				tweet['clinton_sentiment'] = sentiment
+			if tweet['clinton_sentiment'] == tweet['trump_sentiment']:
+				tweet['other_sentiment'] = 1
 			else:
 				tweet['other_sentiment'] = 1
 			
