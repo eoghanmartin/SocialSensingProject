@@ -4,7 +4,7 @@
 import json
 import sys
 import pdb
-import os
+import os, re
 from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
 
@@ -12,11 +12,40 @@ from textblob.sentiments import NaiveBayesAnalyzer
 def SentimentAnalysis(tweet_text):
 	TextBlob_text = TextBlob(tweet_text)
 	sentiment = TextBlob_text.sentiment.polarity
+	print tweet_text, str(sentiment)
 	if sentiment < 0:
 		return -1
-	elif sentiment > 0:
+	elif sentiment > .3:
 		return 1
 	return 0
+
+def HashtagClassify(tweet_text):
+	donald_hashtags = "#donaldtrump2016|#trump2016|#makeamericasafeagain|#trump2016|#trumptrain|#makeamericagreatagain|#draintheswamp|#hillaryemails|#neverhillary|#republicans|#hillaryforprison2016|#crookedhillary|#hillaryforprison|#alllivesmatter"
+	hillary_hashtags = "#notmypresident|#dumptrump|#democrat|#imwithher|#nevertrump|#feminism|#studentloandebt|#studentloanforgiveness|#climatechange|#globalwarming|#istandwithpp|#BlackLivesMatter|#campaignzero|#stopgunviolence"
+	
+	hillary = 0
+	donald = 1
+	other = 2
+
+	if re.search(donald_hashtags, tweet["text"]):
+		return donald
+	if re.search(hillary_hashtags, tweet["text"]):
+		return hillary
+	if re.search("onald|rump", tweet["text"]) and re.search("illary|linton", tweet["text"]):
+		return other
+	if re.search("rt @hillaryclinton", tweet["text"]):
+		return hillary
+	if re.search("rt @realdonaldtrump", tweet["text"]):
+		return donald
+	if re.search("onald|rump", tweet["text"]):
+		return donald
+	if re.search("illary|linton", tweet["text"]):
+		return hillary
+	else:
+		return other
+
+def CleanTweet(tweet_text):
+	return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet_text).lower().split())
 
 if __name__ == '__main__':
 
@@ -53,8 +82,11 @@ if __name__ == '__main__':
 			tweet['clinton_sentiment'] = 0
 			tweet['other_sentiment'] = 0
 
-			tweet_text = tweet['text'].encode('ascii','ignore')
+			tweet_text_unclean = tweet['text'].encode('ascii','ignore')
+			candidate = HashtagClassify(tweet_text_unclean.lower())
+			tweet_text = CleanTweet(tweet_text_unclean)
 			tweet_user = tweet['user']['id_str']
+
 			if tweet_user in influence_values:
 				tweet['influence'] = influence_values[tweet_user]
 			else:
@@ -62,12 +94,18 @@ if __name__ == '__main__':
 			
 			sentiment = SentimentAnalysis(tweet_text)
 
-			if (tweet_text.lower().find("donald") > 0) or (tweet_text.lower().find("trump") > 0):
+			if candidate == 1: #for trump tweets
 				counter_donald += 1
-				tweet['trump_sentiment'] = sentiment
-			if (tweet_text.lower().find("hillary") > 0) or (tweet_text.lower().find("clinton") > 0):
+				if sentiment < 0:
+					tweet['clinton_sentiment'] = abs(sentiment)
+				else:
+					tweet['trump_sentiment'] = sentiment
+			if candidate == 0: #for clinton tweets
 				counter_hillary += 1
-				tweet['clinton_sentiment'] = sentiment
+				if sentiment < 0:
+					tweet['trump_sentiment'] = abs(sentiment)
+				else:
+					tweet['clinton_sentiment'] = sentiment
 			if tweet['clinton_sentiment'] == tweet['trump_sentiment']:
 				tweet['other_sentiment'] = 1
 			else:
