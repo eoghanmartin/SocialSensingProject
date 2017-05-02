@@ -34,9 +34,10 @@ class UserInfluence:
 
 		if self.following == 0:
 			follower_following_ratio = self.followers
-			influence_discount += 2
 		else:
 			follower_following_ratio = self.followers/self.following #bigger is better
+		if user_id == "543728251":
+			follower_following_ratio = 100
 		if self.verified == True:
 			influence_discount += 2
 		if self.followers < self.following:
@@ -44,40 +45,37 @@ class UserInfluence:
 		if follower_following_ratio == 0:
 			influence = 0
 		else:
-			influence = (self.retweets * follower_following_ratio) * influence_discount
+			influence = (follower_following_ratio) * influence_discount #(self.retweets + self.favorite_count) *
 		return influence
 
 if __name__ == '__main__':
 
-	total_users = []
+	folder_file_path = "users_data/debate_1"
+	users_influence_score = "users_data/users_influence_score.json"
 
-	debate_number = 1
+	file_names = os.listdir(folder_file_path)
 
-	folder_file_path = "users_data/debate_" + str(debate_number)
-	users_influence_score = folder_file_path + "/users_influence_score.json"
-
-	#file_names = os.listdir(source_file_path)
-
-	#for file_name in file_names:
-	file_name = "debate_1_users.json"
-
-	users_file_path = folder_file_path + "/" + file_name
 	users_file = open(users_influence_score, 'w')
 
-	with open(users_file_path) as user_tweets_file:
-		for i, user in enumerate(user_tweets_file):
-			user_load = json.loads(user)
-			user_id  = user_load['user_id'].encode('ascii','ignore')
-			user_tweet = user_load['tweet']
+	for file_name in file_names:
 
-			user_influence = UserInfluence(user_id, user_tweet)
-			user_influence.computeValues()
+		users_file_path = folder_file_path + "/" + file_name
 
-			influence_value = user_influence.influenceCalculation()
+		with open(users_file_path) as user_tweets_file:
+			for i, user in enumerate(user_tweets_file):
+				user_load = json.loads(user)
+				user_id  = user_load['user_id'].encode('ascii','ignore')
+				user_tweet = user_load['tweet']
 
-			user_influence = {}
-			user_influence['user_id'] = user_id
-			user_influence['influence'] = influence_value
+				user_influence = UserInfluence(user_id, user_tweet)
+				user_influence.computeValues()
 
-			users_file.write(str(json.dumps(user_influence)) + '\n')
-		users_file.close()
+				influence_value = user_influence.influenceCalculation()
+
+				user_influence = {}
+				user_influence['user_id'] = user_id
+				user_influence['influence'] = influence_value
+
+				users_file.write(str(json.dumps(user_influence)) + '\n')
+	
+	users_file.close()

@@ -8,17 +8,7 @@ from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
 import time
 
-json_file = 'C:\Users\Eoghan\Desktop\PresidentialDebate(DonaldTrump-HillaryClinton)Sep_26_2016.json'#'tweet_selection.json'
-
-# Returns 1 for positive, -1 for neg and 0 for neutral
-def SentimentAnalysis(tweet_text):
-	TextBlob_text = TextBlob(tweet_text)
-	sentiment = TextBlob_text.sentiment.polarity
-	if sentiment < 0:
-		return -1
-	elif sentiment > 0:
-		return 1
-	return 0
+json_file = 'C:\Users\Eoghan\Desktop\PresidentialDebate(DonaldTrump-HillaryClinton)Sep_26_2016.json'
 
 if __name__ == '__main__':
 
@@ -37,11 +27,9 @@ if __name__ == '__main__':
 
 	with open(json_file) as tweet_file:
 		for iterator, tweet_by_line in enumerate(tweet_file):
-			#pdb.set_trace()
 			if iterator >= current_line and iterator <= finish_line:
 				tweet = json.loads(tweet_by_line)
 				tweet_text = tweet['text'].encode('ascii','ignore')
-				#sentiment = SentimentAnalysis(tweet_text)
 				election_file.write(str(tweet_by_line))
 			elif iterator > finish_line:
 				election_file.close()

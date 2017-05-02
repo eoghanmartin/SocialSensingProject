@@ -27,10 +27,10 @@ def HashtagClassify(tweet_text):
 	donald = 1
 	other = 2
 
-	if re.search(donald_hashtags, tweet["text"]):
-		return donald
 	if re.search(hillary_hashtags, tweet["text"]):
 		return hillary
+	if re.search(donald_hashtags, tweet["text"]):
+		return donald
 	if re.search("onald|rump", tweet["text"]) and re.search("illary|linton", tweet["text"]):
 		return other
 	if re.search("rt @hillaryclinton", tweet["text"]):
@@ -53,10 +53,10 @@ if __name__ == '__main__':
 	counter_donald = 0
 
 	debate_number = 1
-	source_file_path = "data/debate_" + str(debate_number)
-	result_file_path = "sentiment_data/debate_" + str(debate_number)
+	source_file_path = "data/debate_1"
+	result_file_path = "sentiment_data/debate_1"
 
-	path_to_influene_scores = "users_data/debate_1/users_influence_score.json"
+	path_to_influene_scores = "users_data/users_influence_score.json"
 
 	influence_values = {}
 
@@ -67,52 +67,55 @@ if __name__ == '__main__':
 			influence = influence_info['influence']
 			influence_values[str(user)] = influence
 
-	#file_names = os.listdir(source_file_path)
+	file_names = os.listdir(source_file_path)
 
-	#for file_name in file_names:
-	file_name = "debate_1_1.json"
-	json_file = source_file_path + "/" + file_name
-	sentiment_file_path = result_file_path + "/" + file_name
-	sentiment_file = open(sentiment_file_path, 'w')
+	for file_name in file_names:
+		#file_name = "debate_1_1.json"
+		json_file = source_file_path + "/" + file_name
+		sentiment_file_path = result_file_path + "/" + file_name
+		sentiment_file = open(sentiment_file_path, 'w')
 
-	with open(json_file) as tweet_file:
-		for i, tweet_by_line in enumerate(tweet_file):
-			tweet = json.loads(tweet_by_line)
-			tweet['trump_sentiment'] = 0
-			tweet['clinton_sentiment'] = 0
-			tweet['other_sentiment'] = 0
+		with open(json_file) as tweet_file:
+			for i, tweet_by_line in enumerate(tweet_file):
+				tweet = json.loads(tweet_by_line)
+				tweet['trump_sentiment'] = 0
+				tweet['clinton_sentiment'] = 0
+				tweet['other_sentiment'] = 0
 
-			tweet_text_unclean = tweet['text'].encode('ascii','ignore')
-			candidate = HashtagClassify(tweet_text_unclean.lower())
-			tweet_text = CleanTweet(tweet_text_unclean)
-			tweet_user = tweet['user']['id_str']
+				tweet_text_unclean = tweet['text'].encode('ascii','ignore')
+				candidate = HashtagClassify(tweet_text_unclean.lower())
+				tweet_text = CleanTweet(tweet_text_unclean)
+				tweet_user = tweet['user']['id_str']
 
-			if tweet_user in influence_values:
-				tweet['influence'] = influence_values[tweet_user]
-			else:
-				tweet['influence'] = 0
-			
-			sentiment = SentimentAnalysis(tweet_text)
-
-			if candidate == 1: #for trump tweets
-				counter_donald += 1
-				if sentiment < 0:
-					tweet['clinton_sentiment'] = abs(sentiment)
+				if tweet_user in influence_values:
+					tweet['influence'] = influence_values[tweet_user]
 				else:
-					tweet['trump_sentiment'] = sentiment
-			if candidate == 0: #for clinton tweets
-				counter_hillary += 1
-				if sentiment < 0:
-					tweet['trump_sentiment'] = abs(sentiment)
+					tweet['influence'] = 0
+				
+				sentiment = SentimentAnalysis(tweet_text)
+
+				if candidate == 1: #for trump tweets
+					counter_donald += 1
+					if sentiment < 0:
+						tweet['clinton_sentiment'] = abs(sentiment)
+					else:
+						tweet['trump_sentiment'] = sentiment
+				if candidate == 0: #for clinton tweets
+					counter_hillary += 1
+					if sentiment < 0:
+						tweet['trump_sentiment'] = abs(sentiment)
+					else:
+						tweet['clinton_sentiment'] = sentiment
 				else:
-					tweet['clinton_sentiment'] = sentiment
-			if tweet['clinton_sentiment'] == tweet['trump_sentiment']:
-				tweet['other_sentiment'] = 1
-			else:
-				tweet['other_sentiment'] = 1
-			
-			sentiment_file.write(str(json.dumps(tweet)) + '\n')
-		sentiment_file.close()
+					tweet['other_sentiment'] = 1
+				if tweet['clinton_sentiment'] == tweet['trump_sentiment']:
+					tweet['other_sentiment'] = 1
+					tweet['trump_sentiment'] = 0
+					tweet['clinton_sentiment']  = 0
+
+				if tweet['other_sentiment'] == 0:
+					sentiment_file.write(str(json.dumps(tweet)) + '\n')
+			sentiment_file.close()
 
 	print '\nHillary Tweets: ', counter_hillary
 	print '\nDonald Tweets: ', counter_donald
