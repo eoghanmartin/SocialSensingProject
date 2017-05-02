@@ -69,11 +69,11 @@ auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth)
 # Initialize listener. NOTE: arg1 = number of tweets before terminating, arg2 = list of substrings to select
-listener1 = textListener(1000, ['Chicago'], api)
+listener1 = textListener(5000, ['Oklahoma City'], api)
 
 # Start listener. NOTE: Hard code desired location here
 stream1 = Stream(auth, listener1)
-stream1.filter(track=['the', 'trump', 'clinton', 'election', 'potus', 'president', 'white house', 'whitehouse'])
+stream1.filter(track=['donald', 'trump', 'clinton', 'election', 'potus', 'president', 'white house', 'whitehouse'])
 #stream1.filter(track=['lol'])
 #stream1.filter(locations=[-86.9177277088,41.7286433379,-82.4194335937,45.8019991667])
 #stream1.filter(locations=[-86.33,41.63,-86.20, 41.74])
