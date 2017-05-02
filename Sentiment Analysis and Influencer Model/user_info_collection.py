@@ -12,9 +12,10 @@ if __name__ == '__main__':
 	total_users = []
 
 	file_number = 0
+	debate_number = 2
 
-	source_file_path = "data/debate_1"
-	result_file_path = "users_data/debate_1"
+	source_file_path = "data/debate_" + str(debate_number)
+	result_file_path = "users_data/debate_" + str(debate_number)
 
 
 	file_names = os.listdir(source_file_path)

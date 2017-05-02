@@ -52,11 +52,11 @@ if __name__ == '__main__':
 	counter_hillary = 0
 	counter_donald = 0
 
-	debate_number = 1
-	source_file_path = "data/debate_1"
-	result_file_path = "sentiment_data/debate_1"
+	debate_number = 2
+	source_file_path = "data/debate_" + str(debate_number)
+	result_file_path = "sentiment_data/debate_" + str(debate_number)
 
-	path_to_influene_scores = "users_data/users_influence_score.json"
+	path_to_influene_scores = "users_data/users_influence_score_" + str(debate_number) + ".json"
 
 	influence_values = {}
 

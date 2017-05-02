@@ -8,7 +8,7 @@ from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
 import time
 
-json_file = 'C:\Users\Eoghan\Desktop\PresidentialDebate(DonaldTrump-HillaryClinton)Sep_26_2016.json'
+json_file = 'C:\Users\Eoghan\Desktop\PresidentialDebate2(DonaldTrump-HillaryClinton)Oct_19_2016.json'
 
 if __name__ == '__main__':
 
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 	finish_line = current_line + sliding_window
 
 	file_number = 1
-	debate_number = 1
+	debate_number = 2
 
 	iterator = 0
 

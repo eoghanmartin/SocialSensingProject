@@ -50,8 +50,10 @@ class UserInfluence:
 
 if __name__ == '__main__':
 
-	folder_file_path = "users_data/debate_1"
-	users_influence_score = "users_data/users_influence_score.json"
+	debate_number = 2
+
+	folder_file_path = "users_data/debate_" + str(debate_number)
+	users_influence_score = "users_data/users_influence_score_" + str(debate_number) + ".json"
 
 	file_names = os.listdir(folder_file_path)
 
