@@ -47,16 +47,30 @@ def HashtagClassify(tweet_text):
 def CleanTweet(tweet_text):
 	return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet_text).lower().split())
 
+def FixLocation(location):
+	if "chicago" in location:
+		return "Chicago"
+	if "san" in location:
+		return "San Francisco"
+	if "york" in location:
+		return "New York"
+	if "erie" in location:
+		return "Erie"
+	if "ok" in location:
+		return "Oklahoma City"
+	return location
+
 if __name__ == '__main__':
+
+	function_name = sys.argv[1]
 
 	counter_hillary = 0
 	counter_donald = 0
 
-	debate_number = 2
-	source_file_path = "data/debate_" + str(debate_number)
-	result_file_path = "sentiment_data/debate_" + str(debate_number)
+	source_file_path = "data/" + function_name
+	result_file_path = "sentiment_data/" + function_name
 
-	path_to_influene_scores = "users_data/users_influence_score_" + str(debate_number) + ".json"
+	path_to_influene_scores = "users_data/users_influence_score_" + function_name + ".json"
 
 	influence_values = {}
 
@@ -70,7 +84,6 @@ if __name__ == '__main__':
 	file_names = os.listdir(source_file_path)
 
 	for file_name in file_names:
-		#file_name = "debate_1_1.json"
 		json_file = source_file_path + "/" + file_name
 		sentiment_file_path = result_file_path + "/" + file_name
 		sentiment_file = open(sentiment_file_path, 'w')
@@ -81,6 +94,8 @@ if __name__ == '__main__':
 				tweet['trump_sentiment'] = 0
 				tweet['clinton_sentiment'] = 0
 				tweet['other_sentiment'] = 0
+
+				tweet['user']['location'] = FixLocation(tweet['user']['location'].lower())
 
 				tweet_text_unclean = tweet['text'].encode('ascii','ignore')
 				candidate = HashtagClassify(tweet_text_unclean.lower())
