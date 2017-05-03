@@ -20,7 +20,8 @@
 	* San Francisco, CA, New York, NY, Oklahoma City, OK, Erie, PA, and Chicago, IL
 * Other datasets can also be filtered with the same method as Twitter streams- location, then keyword.
 
-###Config Keys
+##Config Keys
+
 Keys are listed in a config.txt file. The file is structured as follows:
 ```
 CONSUMER_KEY
