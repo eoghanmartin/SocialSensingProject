@@ -14,6 +14,7 @@ class textListener(StreamListener):
 	def __init__(self, count, keywords=None, api=None):
 		super(textListener, self).__init__()
 		self.count = count
+
 		self.API = api
 		self.tweet_count = 0
 		self.keywords = keywords		
@@ -77,3 +78,4 @@ stream1.filter(track=['donald', 'trump', 'clinton', 'election', 'potus', 'presid
 #stream1.filter(track=['lol'])
 #stream1.filter(locations=[-86.9177277088,41.7286433379,-82.4194335937,45.8019991667])
 #stream1.filter(locations=[-86.33,41.63,-86.20, 41.74])
+
